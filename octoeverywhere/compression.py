@@ -55,7 +55,7 @@ class CompressionContext:
 
 
     def __enter__(self):
-        pass
+        return self
 
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -84,11 +84,11 @@ class CompressionContext:
         if streamWriter is not None:
             streamWriter.__exit__(exc_type, exc_value, traceback)
         if compressor is not None:
-            compressor.__exit__(exc_type, exc_value, traceback)
+            Compression.Get().ReturnZStandardCompressor(compressor)
         if streamReader is not None:
             streamReader.__exit__(exc_type, exc_value, traceback)
         if decompressor is not None:
-            decompressor.__exit__(exc_type, exc_value, traceback)
+            Compression.Get().ReturnZStandardDecompressor(decompressor)
 
 
     # Ideally, we want to tell the system how much data is being compressed in total.

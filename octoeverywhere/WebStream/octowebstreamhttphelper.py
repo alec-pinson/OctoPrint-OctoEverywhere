@@ -654,14 +654,14 @@ class OctoWebStreamHttpHelper:
 
     # Based on the content-type header, this determines if we would apply compression or not.
     # Returns true or false
-    def shouldCompressBody(self, contentTypeLower, octoHttpResult, contentLengthOpt):
+    def shouldCompressBody(self, contentTypeLower:str, octoHttpResult:OctoHttpRequest.Result, contentLengthOpt:int):
         # Compression isn't too expensive in terms of cpu cost but for text, it drastically
         # cuts the size down (ike a 75% reduction.) So we are quite liberal with our compression.
 
         # If there is a full body buffer and and it's already compressed, always return true.
         # This ensures the message is flagged correctly for compression and the body reading system
         # will also read the flag and skip the compression.
-        if octoHttpResult.bodyBufferCompressionType != DataCompression.DataCompression.None_:
+        if octoHttpResult.BodyBufferCompressionType != DataCompression.DataCompression.None_:
             return True
 
         # Make sure we have a known length and it's not too small to compress.

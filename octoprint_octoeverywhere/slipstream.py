@@ -207,14 +207,15 @@ class Slipstream:
         with self.Lock:
             self.Cache[Slipstream.IndexCachePath] = indexResult
 
-        # Set the result to None to make sure we don't use it anymore.
-        indexResult = None
-
         # It's no ideal that we need to de-compress this, but it's fine since we are in the background.
         indexBodyStr = None
         with CompressionContext(self.Logger) as compressionContext:
             # For decompression, we give the pre-compressed size and the compression type. The True indicates this it the only message, so it's all here.
-            indexBodyStr = Compression.Get().Decompress(compressionContext, indexBodyBuffer, indexResult.BodyBufferPreCompressSize, True, indexResult.BodyBufferCompressionType)
+            indexBodyBytes = Compression.Get().Decompress(compressionContext, indexBodyBuffer, indexResult.BodyBufferPreCompressSize, True, indexResult.BodyBufferCompressionType)
+            indexBodyStr = indexBodyBytes.decode(encoding="utf-8")
+
+        # Set the result to None to make sure we don't use it anymore.
+        indexResult = None
 
         # Now process the index to see if there's more we should cache.
         # We explicitly look for known files in the index should reference that are large.

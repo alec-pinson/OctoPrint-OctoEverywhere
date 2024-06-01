@@ -234,7 +234,7 @@ class OctoWebStreamHttpHelper:
                 # The FULL buffer size must be set in the content-length, not the compressed size, since the compression is just for our link, it's decompressed when the
                 # message is unpacked.
                 fullContentBufferSize = len(octoHttpResult.FullBodyBuffer)
-                if octoHttpResult.IsBodyBufferZlibCompressed:
+                if octoHttpResult.BodyBufferCompressionType != DataCompression.DataCompression.None_:
                     fullContentBufferSize = octoHttpResult.BodyBufferPreCompressSize
 
                 # See what the current header is (if there is one). If it's set, it should match.
@@ -658,8 +658,13 @@ class OctoWebStreamHttpHelper:
         # Compression isn't too expensive in terms of cpu cost but for text, it drastically
         # cuts the size down (ike a 75% reduction.) So we are quite liberal with our compression.
 
-        # From testing, we have found that compressing anything smaller than ~200 bytes has not effect
-        # thus it's not worth doing (it actually makes it slightly larger)
+        # If there is a full body buffer and and it's already compressed, always return true.
+        # This ensures the message is flagged correctly for compression and the body reading system
+        # will also read the flag and skip the compression.
+        if octoHttpResult.bodyBufferCompressionType != DataCompression.DataCompression.None_:
+            return True
+
+        # Make sure we have a known length and it's not too small to compress.
         if contentLengthOpt is not None and contentLengthOpt < Compression.MinSizeToCompress:
             return False
 
@@ -668,12 +673,6 @@ class OctoWebStreamHttpHelper:
         # so we don't want to waste time on it.
         if contentTypeLower is None:
             return False
-
-        # If there is a full body buffer and and it's already compressed, always return true.
-        # This ensures the message is flagged correctly for compression and the body reading system
-        # will also read the flag and skip the compression.
-        if octoHttpResult.IsBodyBufferZlibCompressed:
-            return True
 
         # We will compress...
         #   - Any thing that has text/ in it
@@ -784,10 +783,13 @@ class OctoWebStreamHttpHelper:
         originalBufferSize = len(finalDataBuffer)
 
         # Check to see if this was a full body buffer, if it was already compressed.
-        if octoHttpResult.IsBodyBufferZlibCompressed:
-            # If so, use pre compress size it's supplies.
-            # And skip compression since it's already done.
+        if octoHttpResult.BodyBufferCompressionType != DataCompression.DataCompression.None_:
+            # The full body buffer was already compressed and set, so update the other compression values.
             originalBufferSize = octoHttpResult.BodyBufferPreCompressSize
+            if self.CompressionType is not None:
+                raise Exception(f"The BodyBufferCompressionType tried to be set but the compression was already set.! It is {self.CompressionType} and now tried to be {octoHttpResult.BodyBufferCompressionType}")
+            self.CompressionType = octoHttpResult.BodyBufferCompressionType
+
         # Otherwise, check if we should compress
         elif shouldCompress:
             compressionResult = Compression.Get().Compress(self.CompressionContext, finalDataBuffer)

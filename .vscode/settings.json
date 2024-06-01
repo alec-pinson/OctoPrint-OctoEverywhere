@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "py3venv/bin/python",
     "cSpell.words": [
         "ABNF",
         "accesscontrol",
@@ -41,6 +40,7 @@
         "crowsnest",
         "crypo",
         "Damerell",
+        "decompressor",
         "deps",
         "devel",
         "devs",
@@ -97,6 +97,7 @@
         "localip",
         "Mailsail",
         "mainsailconfighandler",
+        "mbps",
         "mdns",
         "microreads",
         "mjpeg",
@@ -244,15 +245,12 @@
         "zhops",
         "zmoves",
         "zoffset",
+        "zstandard",
         "zvalue"
-    ],
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.linting.pylintArgs": [
-        "--rcfile",
-        "${workspaceFolder}/.pylintrc"
     ],
     "cSpell.enableFiletypes": [
         "shellscript"
-    ]
+    ],
+    "pylint.showNotification": true,
+    "pylint.lintOnChange": true,
 }

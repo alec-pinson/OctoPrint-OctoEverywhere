@@ -9,6 +9,7 @@ from octoeverywhere.octoeverywhereimpl import OctoEverywhere
 from octoeverywhere.octohttprequest import OctoHttpRequest
 from octoeverywhere.commandhandler import CommandHandler
 from octoeverywhere.octopingpong import OctoPingPong
+from octoeverywhere.compression import Compression
 from octoeverywhere.telemetry import Telemetry
 from octoeverywhere.sentry import Sentry
 from octoeverywhere.mdns import MDns
@@ -168,6 +169,9 @@ if __name__ == '__main__':
     Telemetry.Init(logger)
     if LocalServerAddress is not None:
         Telemetry.SetServerProtocolAndDomain("http://"+LocalServerAddress)
+
+    # Setup compression
+    Compression.Init(logger)
 
     # Init the mdns client
     MDns.Init(logger, PluginFilePathRoot)

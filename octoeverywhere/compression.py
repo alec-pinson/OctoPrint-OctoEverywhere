@@ -141,23 +141,14 @@ class CompressionContext:
         # We call flush to get the output that can be independently decompressed, but we don't use the
         # zstd.FLUSH_FRAME flag. If we used the zstd.FLUSH_FRAME, we would have to make sure the entire length is written.
         self.StreamWriter.flush()
-        endStreamSec = time.time() - startSec
 
         # Capture the buffer of the written data.
         if self.CompressionByteBuffer is None:
             raise Exception("CompressionContext failed to get a buffer of the compressed data")
-        buf = self.CompressionByteBuffer
+        resultBuffer = self.CompressionByteBuffer
         self.CompressionByteBuffer = None
 
-        # TEST
-        start = time.time()
-        com2 = Compression.Get().RentZStandardCompressor()
-        testBuf = com2.compress(data)
-        Compression.Get().ReturnZStandardCompressor(com2)
-        endCompress= time.time() - start
-        self.Logger.info(f"Compression test: og: {len(data)} s:{len(buf)} c:{len(testBuf)} P:{(len(testBuf)/len(buf)-1)*100} time: diff:{(endStreamSec)*100.0} s:{endStreamSec*100.0} c:{endCompress*100.0} p:{(endCompress/endStreamSec-1)*100}")
-
-        return CompressionResult(buf, time.time() - startSec, DataCompression.ZStandard)
+        return CompressionResult(resultBuffer, time.time() - startSec, DataCompression.ZStandard)
 
 
     # This is the callback from stream_reader that get called when it needs more data to read.
